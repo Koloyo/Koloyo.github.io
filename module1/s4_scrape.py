@@ -24,7 +24,11 @@ def get_urls():
 
 def download(urls, offset=0):
     """Dowloading all files starting from offset"""
+    i = 0
     for url in urls[offset:]:
+        print(i)
+        i = i + 1
+        
         filename = url.split("/")[-1]
         print(f"Dowloading {filename}...")
         start_time = time.time()
@@ -39,7 +43,7 @@ def check(urls):
     ok_count = 0
     for url in urls:
         filename = url.split("/")[-1]
-        downloads = os.listdir('data/pdf')
+        downloads = os.listdir('../data/pdf')
         if filename not in downloads:
             print(f"{filename} is missing!")
         else:
@@ -49,7 +53,7 @@ def check(urls):
 if __name__ == "__main__":
     all_urls = get_urls()
     try:
-        task = sys.argv[1]
+        task = "check"
     except IndexError:
         print("No task provided, please use either 'download' or 'check'")
         sys.exit(1)
