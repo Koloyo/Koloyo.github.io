@@ -15,14 +15,17 @@ def get_rows():
     sparql = SPARQLWrapper(endpoint)
 
     statement = """
-    SELECT DISTINCT ?person ?personLabel ?dateBirth ?dateDeath WHERE {
-        ?person wdt:P27 wd:Q31 .
-        ?person wdt:P106 wd:Q82955 .
-        ?person wdt:P569 ?dateBirth .
-        OPTIONAL {?person wdt:P570 ?dateDeath .}
-        SERVICE wikibase:label { bd:serviceParam wikibase:language "en" . }
-    }
-    ORDER BY ?personLabel
+#Musées Bruxelles
+SELECT DISTINCT ?item ?itemLabel ?coordinates ?date_de_fondation_ou_de_cr_ation ?site_officiel WHERE {
+  ?item (wdt:P31/(wdt:P279*)) wd:Q33506;
+    wdt:P131 wd:Q239;
+    wdt:P625 ?coordinates.
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "fr, nl, en". }
+  OPTIONAL { ?item wdt:P6375 ?adresse. }
+  OPTIONAL { ?item wdt:P571 ?date_de_fondation_ou_de_cr_ation. }
+  OPTIONAL { ?item wdt:P854 ?URL_de_la_r_f_rence. }
+  OPTIONAL { ?item wdt:P856 ?site_officiel. }
+}
     """
 
     sparql.setQuery(statement)
@@ -30,30 +33,34 @@ def get_rows():
     results = sparql.query().convert()
 
     rows = results['results']['bindings']
-    print(f"\n{len(rows)} Belgian politicians found\n")
+    print(f"\n{len(rows)} Brussels museums found\n")
     return rows
 
 def show(rows, name_filter=None, n=10):
     """Display n politicians (default=10)"""
     date_format = "%Y-%m-%dT%H:%M:%SZ"
     if name_filter:
-        rows = [row for row in rows if name_filter in row['personLabel']['value'].lower()]
+        rows = [row for row in rows if name_filter in row['itemLabel']['value'].lower()]
     print(f"Displaying the first {n}:\n")
     for row in rows[:n]:
+        name =  row['itemLabel']['value']
         try:
-            birth_date = dt.strptime(row['dateBirth']['value'], date_format)
-            birth_year = birth_date.year
-        except ValueError:
-            birth_year = "????"
+            site_officiel = row['site_officiel']['value']
+        except KeyError:
+            site_officiel = "????"       
+        print(f"Nom: {name}. Site officiel: {site_officiel}")
+                
         try:
-            death_date = dt.strptime(row['dateDeath']['value'], date_format)
-            death_year = death_date.year
-        except ValueError: # unknown death date
-            death_year = "????"
-        except KeyError: # still alive
-            death_year = ""
-        print(f"{row['personLabel']['value']} ({birth_year}-{death_year})")
-
+            date_de_fondation_ou_de_cr_ation = dt.strptime(row['date_de_fondation_ou_de_cr_ation']['value'], date_format)
+            date_de_fondation_ou_de_cr_ation_y = date_de_fondation_ou_de_cr_ation.year
+            date_de_fondation_ou_de_cr_ation_m = date_de_fondation_ou_de_cr_ation.month
+            date_de_fondation_ou_de_cr_ation_d = date_de_fondation_ou_de_cr_ation.day
+        except (ValueError, KeyError):
+            date_de_fondation_ou_de_cr_ation_y = '????'
+            date_de_fondation_ou_de_cr_ation_m = '??'
+            date_de_fondation_ou_de_cr_ation_d = '??'
+        print(f"Date de fondation ou de création: {date_de_fondation_ou_de_cr_ation_d}/{date_de_fondation_ou_de_cr_ation_m}/{date_de_fondation_ou_de_cr_ation_y}")
+            
 if __name__ == "__main__":
     args = parser.parse_args()
     my_rows = get_rows()
