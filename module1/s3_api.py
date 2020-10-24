@@ -4,6 +4,18 @@ import json
 import sys
 
 import requests
+import textrazor
+
+def print_topic_score(url):
+    """Print 10 most probable topics and confidence score for a text from a text on a website url passed as input.""" 
+    textrazor.api_key = "fab1f5ef253a7daa2ec64726f01738f24bf84c59dde7c66f1ec1cd04"
+
+    client = textrazor.TextRazor(extractors=["topics"])
+    client.set_language_override('fre')
+    response = client.analyze_url(url)
+
+    for topic in response.topics()[:10]:
+        print(topic.label, topic.score)
 
 def print_coord(address):
     """Retrieve coordinates from Open Street Map"""
@@ -54,7 +66,13 @@ if __name__ == "__main__":
                 print_info(country_name)
             except IndexError:
                 print("Please enter a country name")
+        elif service == 'topic':
+            try:
+                url_link = sys.argv[2]
+                print_topic_score(url_link)
+            except IndexError:
+                print("Please enter a url to a text source")            
         else:
-            print("Unknown action, please use either 'coord' or 'info'")
+            print("Unknown action, please use either 'coord', 'info' or 'topic'")
     except IndexError:
-        print("Missing action, please use either 'coord' or 'info'")
+        print("Missing action, please use either 'coord', 'info' or 'topic'")
