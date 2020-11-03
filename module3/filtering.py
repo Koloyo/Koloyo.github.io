@@ -9,13 +9,16 @@ sw += ["les", "plus", "cette", "fait", "faire", "être", "deux", "comme", "dont"
        "ils", "bien", "sans", "peut", "tous", "après", "ainsi", "donc", "cet", "sous",
        "celle", "entre", "encore", "toutes", "pendant", "moins", "dire", "cela", "non",
        "faut", "trois", "aussi", "dit", "avoir", "doit", "contre", "depuis", "autres",
-       "van", "het", "autre", "jusqu"]
+       "van", "het", "autre", "jusqu", "ici", "intéresse", "ouvrir" , "l" , "lorsqu", "oui", "très",
+       "tel", "elles", "enfin", "doivent", "afin", "assez", "jour", "car", "parce", "rien", "déjà", "quand", 
+       "reste", "crois", "laquelle", "toute", 
+       ]
 sw = set(sw)
 
 
 def filtering(year):
     path = f"{year}.txt"
-    output = open(f"{year}_keywords.txt", "w")
+    output = open(f"{year}_keywords.txt", "w", encoding="utf8")
 
     with open(path) as f:
         text = f.read()
